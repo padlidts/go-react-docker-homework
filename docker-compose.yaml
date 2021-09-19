@@ -1,0 +1,33 @@
+version: '3.1'
+
+services:
+  database:
+    image: mongo
+    environment: 
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      
+  app_be:
+    depends_on: 
+      - database
+    build:
+      context: ./go-server
+      dockerfile: Dockerfile.be
+    ports:
+      - 8080:8080
+    environment: 
+      - DB_URI=${DB_URI}
+      - DB_NAME=${DB_NAME}
+      - DB_COLLECTION_NAME=${DB_COLLECTION_NAME}
+
+  app_fe:
+    depends_on: 
+      - app_be
+    build:
+      context: ./client
+      dockerfile: Dockerfile.fe
+    ports:
+      - 3000:3000
+    links:
+      - app_be
